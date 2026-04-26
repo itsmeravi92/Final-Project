@@ -22,10 +22,13 @@ source_radio = st.sidebar.radio(
 # ---------------- MODEL SELECTION ----------------
 st.sidebar.header("Model Selection")
 
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 model_options = {
-    "Best Model": "models/best.onnx",
-    "Best Wave": "models/best-wave.onnx",
-    "Yolo Model": "models/yolov8n.pt"
+    "Best Model": os.path.join(BASE_DIR, "models", "best.onnx"),
+    "Best Wave": os.path.join(BASE_DIR, "models", "best-wave.onnx"),
+    "Yolo Model": os.path.join(BASE_DIR, "models", "yolov8n.pt")
 }
 
 selected_model_name = st.sidebar.selectbox(
