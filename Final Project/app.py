@@ -57,26 +57,20 @@ def process_frame(frame, conf):
 if source_radio == "Live Camera":
     st.header("Webcam Feed")
 
-    run = st.checkbox('Start Camera')
-    FRAME_WINDOW = st.image([])
+    from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
+    import av
 
-    camera = cv2.VideoCapture(0)
+    class WeaponDetector(VideoProcessorBase):
+        def recv(self, frame):
+            img = frame.to_ndarray(format="bgr24")
+            processed = process_frame(img, confidence)
+            return av.VideoFrame.from_ndarray(processed, format="bgr24")
 
-    while run:
-        ret, frame = camera.read()
-
-        if not ret:
-            st.error("Failed to access webcam.")
-            break
-
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        processed = process_frame(frame, confidence)
-
-        FRAME_WINDOW.image(processed)
-
-    else:
-        camera.release()
-        st.write("Camera is off.")
+    webrtc_streamer(
+        key="weapon-detection",
+        video_processor_factory=WeaponDetector,
+        media_stream_constraints={"video": True, "audio": False},
+    )
 
 # ---------------- FILE UPLOAD ----------------
 else:
