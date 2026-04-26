@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import cv2
 import numpy as np
@@ -7,7 +8,7 @@ import tempfile
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="AI Weapon Detection System", layout="wide")
-st.title(" Weapon Detection Dashboard")
+st.title("Weapon Detection Dashboard")
 
 # ---------------- SIDEBAR ----------------
 st.sidebar.header("Settings")
@@ -22,7 +23,6 @@ source_radio = st.sidebar.radio(
 # ---------------- MODEL SELECTION ----------------
 st.sidebar.header("Model Selection")
 
-import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 model_options = {
@@ -37,7 +37,6 @@ selected_model_name = st.sidebar.selectbox(
 )
 
 model_path = model_options[selected_model_name]
-
 st.sidebar.write(f"Using Model: {selected_model_name}")
 
 # ---------------- LOAD MODEL ----------------
@@ -55,22 +54,17 @@ def process_frame(frame, conf):
 
 # ---------------- LIVE CAMERA ----------------
 if source_radio == "Live Camera":
-    st.header("Webcam Feed")
+    st.header("Webcam Capture")
+    st.info("Take a photo using your webcam and the model will detect weapons in it.")
 
-    from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
-    import av
+    picture = st.camera_input("Take a photo for detection")
 
-    class WeaponDetector(VideoProcessorBase):
-        def recv(self, frame):
-            img = frame.to_ndarray(format="bgr24")
-            processed = process_frame(img, confidence)
-            return av.VideoFrame.from_ndarray(processed, format="bgr24")
-
-    webrtc_streamer(
-        key="weapon-detection",
-        video_processor_factory=WeaponDetector,
-        media_stream_constraints={"video": True, "audio": False},
-    )
+    if picture is not None:
+        image = Image.open(picture)
+        img_array = np.array(image)
+        st.subheader("Detection Result")
+        processed = process_frame(img_array, confidence)
+        st.image(processed, use_container_width=True)
 
 # ---------------- FILE UPLOAD ----------------
 else:
@@ -88,11 +82,9 @@ else:
         if file_type == 'image':
             image = Image.open(uploaded_file)
             img_array = np.array(image)
-
             st.subheader("Detection Result")
-
             processed_img = process_frame(img_array, confidence)
-            st.image(processed_img, use_column_width=True)
+            st.image(processed_img, use_container_width=True)
 
         # ---------- VIDEO ----------
         elif file_type == 'video':
@@ -104,13 +96,10 @@ else:
 
             while cap.isOpened():
                 ret, frame = cap.read()
-
                 if not ret:
                     break
-
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 processed = process_frame(frame, confidence)
-
-                st_frame.image(processed)
+                st_frame.image(processed, use_container_width=True)
 
             cap.release()
