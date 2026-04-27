@@ -6,9 +6,7 @@ from ultralytics import YOLO
 from PIL import Image
 import tempfile
 
-# ─────────────────────────────────────────────
-#  PAGE CONFIG
-# ─────────────────────────────────────────────
+
 st.set_page_config(
     page_title="WeaponSense AI",
     page_icon="🔍",
@@ -16,9 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─────────────────────────────────────────────
-#  CUSTOM CSS
-# ─────────────────────────────────────────────
+# iddhar css ka kaam hai
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
@@ -144,9 +140,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-#  CONSTANTS
-# ─────────────────────────────────────────────
+# yaha mene code change kr kiya h mr pradumn
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MODEL_OPTIONS = {
@@ -155,9 +149,7 @@ MODEL_OPTIONS = {
     "YOLOv8n (PyTorch)":  os.path.join(BASE_DIR, "models", "yolov8n.pt"),
 }
 
-# ─────────────────────────────────────────────
-#  SIDEBAR
-# ─────────────────────────────────────────────
+# praumn don ye sidebar h 
 with st.sidebar:
     st.markdown('<div class="sub-header">⚙ Configuration</div>', unsafe_allow_html=True)
 
@@ -188,9 +180,7 @@ with st.sidebar:
     st.markdown(f'<div class="metric-card"><div class="metric-label">Model</div><div class="metric-value" style="font-size:0.85rem;">{selected_model_name}</div></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="metric-card"><div class="metric-label">Confidence</div><div class="metric-value">{int(confidence*100)}%</div></div>', unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-#  LOAD MODEL
-# ─────────────────────────────────────────────
+
 @st.cache_resource
 def load_model(path):
     return YOLO(path)
@@ -201,9 +191,7 @@ except Exception as e:
     st.error(f"❌ Could not load model at `{model_path}`. Make sure the `models/` folder exists next to `app.py`.")
     st.stop()
 
-# ─────────────────────────────────────────────
-#  DETECTION HELPERS
-# ─────────────────────────────────────────────
+
 def run_detection(frame, conf):
     results = model.predict(frame, conf=conf, verbose=False)
     annotated = results[0].plot()
@@ -231,14 +219,10 @@ def render_detections(detections):
             </div>
             """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-#  HEADER
-# ─────────────────────────────────────────────
+
 st.markdown('<div class="main-header">🔍 WeaponSense AI — Detection Dashboard</div>', unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-#  WEBCAM MODE
-# ─────────────────────────────────────────────
+# ye webcam mode h 
 if "Webcam" in source:
     st.markdown('<div class="sub-header">📷 Webcam Detection</div>', unsafe_allow_html=True)
     st.markdown('<div class="info-box">Point your camera at the subject and click <strong>Take Photo</strong>. The model will analyze the captured frame for weapons.</div>', unsafe_allow_html=True)
@@ -271,9 +255,7 @@ if "Webcam" in source:
         else:
             result_slot.markdown('<div style="color:#475569; font-size:0.85rem; margin-top:1rem;">Awaiting capture...</div>', unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-#  FILE UPLOAD MODE
-# ─────────────────────────────────────────────
+# yaha se file upload krdena
 else:
     st.markdown('<div class="sub-header">📁 File Upload Detection</div>', unsafe_allow_html=True)
     st.markdown('<div class="info-box">Upload an image or video. Supported: JPG, PNG, MP4, AVI.</div>', unsafe_allow_html=True)
@@ -311,8 +293,7 @@ else:
                     avg = sum(d["confidence"] for d in detections) / len(detections)
                     st.markdown(f'<div class="metric-card"><div class="metric-label">Total Detections</div><div class="metric-value">{len(detections)}</div></div>', unsafe_allow_html=True)
                     st.markdown(f'<div class="metric-card"><div class="metric-label">Avg Confidence</div><div class="metric-value">{avg*100:.1f}%</div></div>', unsafe_allow_html=True)
-
-        # ── VIDEO ──────────────────────────────
+# yaha se video krna upload
         elif file_type == 'video':
             tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
             tfile.write(uploaded_file.read())
